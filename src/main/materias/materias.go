@@ -11,7 +11,11 @@ import (
 
 func GetMaterias(c *gin.Context) {
 	materias := utils.CrearMaterias()
-	c.IndentedJSON(http.StatusOK, materias)
+	if materias == nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Materias no encontradas", "message": "No se econtraron materias para ese nivel"})
+	}
+	//c.IndentedJSON(http.StatusOK, materias)
+	c.IndentedJSON(http.StatusOK, gin.H{"materias": materias})
 	return
 }
 
@@ -28,9 +32,25 @@ func BuscarMateriasPor(c *gin.Context) {
 			materiasFiltradas = append(materiasFiltradas, materia)
 		}
 	}
-
-	c.IndentedJSON(http.StatusOK, materiasFiltradas)
+	if materiasFiltradas == nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Materias no encontradas", "message": "No se econtraron materias para ese nivel"})
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"materias": materiasFiltradas})
 	return
+}
+
+func BuscarMateriaPorId(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id < 1 {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Materia no econtrada, revise el id enviado"})
+	}
+
+	materias := utils.CrearMaterias()
+	for _, materia := range materias {
+		if materia.Id == id {
+			c.IndentedJSON(http.StatusOK, gin.H{"materia": materia})
+		}
+	}
 }
 
 func AgregarMateria(c *gin.Context) {
@@ -51,7 +71,7 @@ func AgregarMateria(c *gin.Context) {
 	materias = append(materias, &materia)
 	utils.EscribirArchivo(materias)
 
-	c.JSON(http.StatusCreated, materia)
+	c.IndentedJSON(http.StatusCreated, gin.H{"materia": materia})
 
 	return
 }
@@ -66,7 +86,7 @@ func BorrarMateria(c *gin.Context) {
 	materias = append(materias[:index], materias[index+1:]...)
 
 	utils.EscribirArchivo(materias)
-	c.JSON(http.StatusOK, materias)
+	c.IndentedJSON(http.StatusOK, gin.H{"materia": materias})
 	return
 }
 
@@ -85,5 +105,5 @@ func ActualizarMateria(c *gin.Context) {
 		}
 	}
 	utils.EscribirArchivo(materias)
-	c.JSON(http.StatusOK, materia)
+	c.IndentedJSON(http.StatusOK, gin.H{"materia": materia})
 }

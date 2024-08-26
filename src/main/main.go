@@ -11,6 +11,7 @@ func main() {
 
 	router.GET("/api/materias", materias.GetMaterias)
 	router.GET("/api/materias/:nivel", materias.BuscarMateriasPor)
+	router.GET("/api/materia/:id", materias.BuscarMateriaPorId)
 
 	router.POST("/api/materia", materias.AgregarMateria)
 	router.POST("/api/materia/delete/:id", materias.BorrarMateria)
